@@ -79,7 +79,7 @@ void derecha_izquierda(){
 }
 void arriba_abajo(){
 
-  if(digitalRead(TTP223_3) == HIGH){
+  if(digitalRead(TTP223_3) == HIGH){ //Hay que mantener apretado para que gire
 
     grados++;
 
