@@ -1,6 +1,7 @@
-#include <SoftwareSerial.h>
 /*
  * PRUEBA MODULO BLUETOOTH ""MAESTRO""¡¡¡¡NO SE PROBO NADA!!!
+ * 
+ * Se podria hacer una prueba inicial donde los touch se simulen con botones
  * 
  */
 //Cada sensor esta simulado con pulsadores hasta que encuentre la libreria para los sensores
@@ -16,13 +17,10 @@ int dato_2;
 int dato_3;
 int dato_4;
 
-SoftwareSerial bluetooth(10,11);
-
 void setup() {
-  
+
   Serial.begin(9600);
-  bluetooth.begin(9600);
-  
+
   pinMode(TTP223_1, INPUT);
   pinMode(TTP223_2, INPUT);
   pinMode(TTP223_3, INPUT);
@@ -31,23 +29,23 @@ void setup() {
 }
 
 void loop() {
-  
+
   dato_1 = digitalRead(TTP223_1);
   if(dato_1 == HIGH){
 
     Serial.print('1');
   }else
   {
-    Serial.print('0')
+    Serial.print('0');
   }
-  
+
   dato_2 = digitalRead(TTP223_2);
   if(dato_2 == HIGH){
 
     Serial.print('2');
   }else
   {
-    Serial.print('0')
+    Serial.print('0');
   }
 
   dato_3 = digitalRead(TTP223_3);
@@ -56,7 +54,7 @@ void loop() {
     Serial.print('3');
   }else
   {
-    Serial.print('0')
+    Serial.print('0');
   }
 
   dato_4 = digitalRead(TTP223_4);
@@ -65,6 +63,6 @@ void loop() {
     Serial.print('4');
   }else
   {
-    Serial.print('0')
+    Serial.print('0');
   }
 }
