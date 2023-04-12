@@ -37,54 +37,28 @@ void loop() {
 
   if(state == '1'){
 
-    derecha();  
-  }
-  if(state == '2'){
-
-    izquierda();  
-  }
-  if(state == '3'){
-
-    arriba();  
-  }
-  if(state == '4'){
-
-    abajo();
-  }
-
-  
-}
-void derecha(){
-
-  if(digitalRead(TTP223_1) == HIGH){
-
     grados++;
 
     if(grados >= 180){ // Protege el sero de no sobreexigirlos 
 
-      grados = 180;
-    }
-  }  
-  miservo_1.write(grados);
+      grados = 180;  
+  }
+   miservo_1.write(grados);
   delay(10);
   state = 0;
 }
-void izquierda(){
-
-    if(digitalRead(TTP223_2) == HIGH){
+  }
+  if(state == '2'){
 
     grados--;
     if(grados <= 0){ //Protege el servo
 
       grados = 0;
-    }
   }
   miservo_1.write(grados);
   delay(10);
 }
-void arriba(){
-
-  if(digitalRead(TTP223_3) == HIGH){
+  if(state == '3'){
 
     grados++;
 
@@ -92,27 +66,23 @@ void arriba(){
 
       grados = 180;
     }
-  }
-
   miservo_2.write(grados);
   delay(10);
   
   miservo_3.write(grados);
   delay(10);
-}
-void abajo(){
-
-  if(digitalRead(TTP223_4) == HIGH){
+  }
+  if(state == '4'){
 
     grados--;
     if(grados <= 0){ //Protege el servo
 
       grados = 0;
     }
-  }
   miservo_2.write(grados);
   delay(10);
   
   miservo_3.write(grados);
   delay(10);
 }
+  }
