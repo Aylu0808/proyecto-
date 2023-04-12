@@ -47,7 +47,7 @@ void loop() {
   delay(10);
   state = 0;
 }
-  }
+  
   if(state == '2'){
 
     grados--;
@@ -71,7 +71,7 @@ void loop() {
   
   miservo_3.write(grados);
   delay(10);
-  }
+}
   if(state == '4'){
 
     grados--;
