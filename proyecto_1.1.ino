@@ -1,7 +1,29 @@
-/* 
- *  CODIGO CON LOS SERVOS, BLUETOOTH, INFRAS, 74HC595, LCD CON I2C Y CUENTA REGRRESIVA
- *  SOLO HAY QUE ARREGLAR QUE SE BORRE LA CUENTA REGRESIVA CUANDO TERMINE
- *  HAY QUE PROBAR EN FISICO PARA SABER LA CONFIGURACION DE  LOS SERVOS Y S LA PARTE DE LOS LEDS ALEATORIOS FUNCIONA
+https://html.alldatasheet.com/html-pdf/12198/ONSEMI/74HC595/181/1/74HC595.html (HOJA DE DATOS DEL 74HC595)
+
+  SE USA PULL UP EN TODO
+
+ * CODIGO CON :
+ * - I2C
+ * - 74hc595
+ * - Bluetooth
+ * - Servos
+ * 
+ * - Cuenta regresiva
+ * 
+ * NO TIENE:
+ * - Cuenta general
+ *
+ *  
+ * PROBADO
+ * - funcionamiento de leds 
+ * - funcionamiento de pulsadores 
+ * - El incremento de viajes
+ *
+ * FALTA
+ * - servos
+ * - bluetooth
+ * - infras
+ * 
 */
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
@@ -9,33 +31,33 @@
 #include <Servo.h>
 
 #define infra1 A0
-#define infra2 A1 
-#define infra3 A2 
-#define infra4 A3 
+#define infra2 A1
+#define infra3 A2
+#define infra4 A3
 #define infra5 0
 
-#define lachtPin 8 // es la patita SH_CP
-#define clockPin 13 // es la patita DS 
-#define dataPin 12 //es la patita ST_CP
+#define pinLatch 8  // es la patita SH_CP
+#define clockPin 13 // es la patita DS
+#define dataPin 12  // es la patita ST_CP
 
-#define incremento 5
+#define incremento 7
 #define inicio 4
 
 Servo miservo_1; // servo 1 derecha izquierda
-Servo miservo_2; //Servo 2 y 3 hacen lo msimo por que es para estabilizacion
-Servo miservo_3;//servo 2 y 3 arriab y abajo
+Servo miservo_2; // Servo 2 y 3 hacen lo msimo por que es para estabilizacion
+Servo miservo_3; // servo 2 y 3 arriab y abajo
 
-LiquidCrystal_I2C lcd (0x27,16,2);
+LiquidCrystal_I2C lcd(0x3F, 16, 2);
 
 volatile int numViajes = 0;
 volatile int aceptacion = 0;
 
 volatile int flagRegresion = 0;
 volatile int contadorViajes = 0;
+volatile int numAnterior = 0;
 
-volatile int activacionJuego = 0; //flag para iniciar el juego
+volatile int activacionJuego = 0; // flag para iniciar el juego
 volatile int aleatorio = 0;
-volatile byte myByte = 0;
 
 volatile int regresion;
 volatile int aux = 0;
@@ -48,220 +70,280 @@ void cuentaRegresiva();
 void juego();
 void finDelJuego();
 
-void setup(){
+void setup()
+{
 
   Serial.begin(9600);
 
   lcd.init();
   lcd.backlight();
-
+  //Mensaje de bienvenida
   lcd.setCursor(0, 0);
-  lcd.print ("  Bienvenido a  ");
+  lcd.print("  Bienvenido a  ");
   lcd.setCursor(0, 1);
-  lcd.print ("  Super Guanti  ");
+  lcd.print("  Super Guanti  ");
   delay(1000);
   lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print ("Una creacion de:");
+  lcd.setCursor(0, 0);
+  lcd.print("Una creacion de:");
   lcd.setCursor(0, 1);
-  lcd.print ("     M.A.L.     ");
+  lcd.print("     M.A.L.     ");
   delay(1000);
-  
+
   pinMode(incremento, INPUT);
   pinMode(inicio, INPUT);
 
   pinMode(infra1, INPUT);
-  pinMode(infra2, INPUT);
+ /* pinMode(infra2, INPUT);
   pinMode(infra3, INPUT);
   pinMode(infra4, INPUT);
-  pinMode(infra5, INPUT);
+  pinMode(infra5, INPUT);*/
 
-
-  pinMode(lachtPin, OUTPUT);
+  pinMode(pinLatch, OUTPUT);
   pinMode(clockPin, OUTPUT);
   pinMode(dataPin, OUTPUT);
 
-  miservo_1.attach(3,750,1800); // EL 2 ES EL PIN DONDE ESTA CONECTADO EL 750 ES EL 0 Y EL 1800 POR LOS 180°
+  miservo_1.attach(3, 750, 1800); // EL 2 ES EL PIN DONDE ESTA CONECTADO EL 750 ES EL 0 Y EL 1800 POR LOS 180°
   miservo_1.write(grados);
 
-  miservo_2.attach(5,750,1800); // EL 2 ES EL PIN DONDE ESTA CONECTADO EL 750 ES EL 0 Y EL 1800 POR LOS 180°
+  miservo_2.attach(5, 750, 1800); // EL 2 ES EL PIN DONDE ESTA CONECTADO EL 750 ES EL 0 Y EL 1800 POR LOS 180°
   miservo_2.write(grados);
 
-  miservo_3.attach(6,750,1800); // EL 2 ES EL PIN DONDE ESTA CONECTADO EL 750 ES EL 0 Y EL 1800 POR LOS 180°
+  miservo_3.attach(6, 750, 1800); // EL 2 ES EL PIN DONDE ESTA CONECTADO EL 750 ES EL 0 Y EL 1800 POR LOS 180°
   miservo_3.write(grados);
 }
 
 void loop(){
 
-  if(aceptacion == 0){ 
+  if(aceptacion == 0) {
 
     lcd.clear();
-    lcd.setCursor(0,0);
+    lcd.setCursor(0, 0);
     lcd.print("Cant de viajes:");
     cantViajes();
+
   }
-  else{
-    
-    switch(flagRegresion){  
+  else 
+  { switch (flagRegresion){
+      /*
+      * flagRegresion se utiliza para ir avanzando en los pasos del programa 
+      */
       case 0:
-        lcd.setCursor(0,0);
+        lcd.setCursor(0, 0);
         lcd.print("El juego inicia");
-        lcd.setCursor(0,1);
+        lcd.setCursor(0, 1);
         lcd.print("     en: ");
         flagRegresion = 1;
       break;
       case 1:
-        Timer1.initialize(1000000);//1s
+        /*
+        * La funcion cuentaRegresiva empieza a interrumpirse con el timer a partir de ahora
+        * 
+        * tambien se muestra en pantalla
+        */
+        Timer1.initialize(1000000); // 1s
         Timer1.attachInterrupt(cuentaRegresiva);
 
-        lcd.setCursor(10,1);
+        lcd.setCursor(10, 1);
         lcd.print(regresion);
       break;
       case 2:
-        lcd.setCursor(0,0);
+        lcd.setCursor(0, 0);
         lcd.print("    A JUGAR!    ");
-        lcd.setCursor(0,1);
+        lcd.setCursor(0, 1);
         lcd.print("                ");
 
+        if (Serial.available() > 0)
+        {
 
-        if(Serial.available() > 0){
-    
           state = Serial.read();
-          Serial.write(state);   
+          Serial.write(state);
+        }
+
+        if (state == '1')
+        {
+
+          grados++;
+
+          if (grados >= 180)
+          { // Protege el sero de no sobreexigirlos
+
+            grados = 180;
           }
+          miservo_1.write(grados);
+          delay(10);
+          state = 0;
+        }
 
-        if(state == '1'){
-
-           grados++;
-
-            if(grados >= 180){ // Protege el sero de no sobreexigirlos 
-
-               grados = 180;  
-         }
-           miservo_1.write(grados);
-           delay(10);
-           state = 0;
-           }
-  
-        if(state == '2'){
+        if (state == '2')
+        {
 
           grados--;
-          if(grados <= 0){ //Protege el servo
+          if (grados <= 0)
+          { // Protege el servo
 
-              grados = 0;
+            grados = 0;
           }
-       miservo_1.write(grados);
-       delay(10);
-       }
-      if(state == '3'){
-
-        grados++;
-
-      if(grados >= 180){ // Protege el sero de no sobreexigirlos 
-
-        grados = 180;
-      }
-       miservo_2.write(grados);
-       delay(10);
-  
-      miservo_3.write(grados);
-      delay(10);
-      }
-      if(state == '4'){
-
-        grados--;
-        if(grados <= 0){ //Protege el servo
-
-          grados = 0;
+          miservo_1.write(grados);
+          delay(10);
         }
-        miservo_2.write(grados);
-        delay(10);
-  
-        miservo_3.write(grados);
-        delay(10);
-        }        
-        if(activacionJuego == 0){
+        if (state == '3')
+        {
+
+          grados++;
+
+          if (grados >= 180)
+          { // Protege el sero de no sobreexigirlos
+            grados = 180;
+          }
+          miservo_2.write(grados);
+          delay(10);
+
+          miservo_3.write(grados);
+          delay(10);
+        }
+        if (state == '4')
+        {
+          grados--;
+          if (grados <= 0)
+          { // Protege el servo
+
+            grados = 0;
+          }
+          miservo_2.write(grados);
+          delay(10);
+
+          miservo_3.write(grados);
+          delay(10);
+        }
+
+
+        if (activacionJuego == 0)
+        {
           juego();
         }
-        if(digitalRead(infra1) == HIGH || digitalRead(infra2) == HIGH || digitalRead(infra3) == HIGH || digitalRead(infra4) == HIGH || digitalRead(infra5) == HIGH){ 
-          delay(300);//retencion del pulsador
+        if (digitalRead(infra1) == LOW)
+        {
+          delay(500); // retencion del pulsador
           contadorViajes++;
-        
-          if(contadorViajes < numViajes){
+
+          if (contadorViajes < numViajes)
+          {
             activacionJuego = 0;
           }
-          if(contadorViajes >= numViajes){
+          if (contadorViajes >= numViajes)
+          {
             lcd.clear();
             finDelJuego();
           }
         }
       break;
-     }
-  }
-}
-
-
-void cantViajes() { 
-
-  do{
-
-    if(digitalRead(incremento) == HIGH){
-
-      numViajes++; //Esto se podria hacer de 5 en 5
-      delay(300); //Este delay hay que sacarlo en un futuro, es para la retencion del pulsador
-      lcd.setCursor(0,1);
-      lcd.print(numViajes);
     }
 
-  }while(digitalRead(inicio) == LOW);
-  
-  if(digitalRead(inicio) == HIGH){
+  }
+}
+void cantViajes(){
+  /* Al pulsar el boton de incremento se aumenta la cantidad de viajes
+   *
+   * Si se pulsa el boton inicio se termina la configuracion de cantidad de viajes e inicia la cuenta regresiva
+  */
+  do{
+    
+    if(digitalRead(incremento) == LOW){
+
+    delay(300);
+    numViajes++;
+    lcd.setCursor(0,1);
+    lcd.print(numViajes);
+
+  } 
+  }while(digitalRead(inicio) == HIGH);
+
+  if (digitalRead(inicio) == LOW) {
     delay(300);
     aceptacion = 1;
     lcd.clear(); //el clear esta aca para que se ejecute solo una vez
   }
 }
-void juego(){
-/* En aleatorio se guarda el numero que genera la funcion random
- * 
- * myByte esta declarado como byte porque tiene 8 posiciones 
- * 
- * en myByte se guarda un 1 desplazado la cantidad de veces que indique el numero guardado en aleatorio
- * 
- * myByte se manda a la salida y listo
- * 
- * se tiene que usar MSBFIRST para que funcione
- * 
- * activacionJuego es una flag que se implementa para entrar y salir de la funcion juego y que no se quede el programa trabado en el encendido de los leds
- */
-  aleatorio = random(0, 5);
-  myByte = 0;
-  myByte = 1<<aleatorio;
-  
-  digitalWrite(lachtPin, LOW); //sube cada 8 ciclos
-  shiftOut(dataPin, clockPin, MSBFIRST, myByte);//le mandamos cuatro datos primero la data despues el pin del reloj , el bit menos significativo
-  digitalWrite(lachtPin, HIGH);
 
-  activacionJuego = 1;
+void juego() {
+  /* 
+   * Genera un numero aleatorio, el cuel no puede ser igual al anterior
+   * 
+   * Dependiendo de ese numero se marca que salida debe tener el 74hc595
+   * 
+   * Los numeros en binario tienen un unico cero dentro de los primeros 5 digitos
+   * 
+   * Se ulizan las salidas QA, QB, QC, QD, QE del 74hc595
+   * 
+   * activacionJuego es una flag que se modifica para salir de la funcion juego y volver al codigo principal
+  */
+
+  do{
+    aleatorio = random(0, 5);
+  }while(aleatorio == numAnterior);
+  
+  switch (aleatorio)
+  {
+    case 0:
+      digitalWrite(pinLatch, LOW);              
+      shiftOut(dataPin, clockPin, MSBFIRST, 1); 
+      digitalWrite(pinLatch, HIGH);
+      numAnterior = 0;
+      activacionJuego = 1;
+    break;
+    case 1:
+      digitalWrite(pinLatch, LOW);              
+      shiftOut(dataPin, clockPin, MSBFIRST, 2); 
+      digitalWrite(pinLatch, HIGH);
+      numAnterior = 1;
+      activacionJuego = 1;
+    break;
+    case 2:
+      digitalWrite(pinLatch, LOW);              
+      shiftOut(dataPin, clockPin, MSBFIRST, 4); 
+      digitalWrite(pinLatch, HIGH);
+      numAnterior = 2;
+      activacionJuego = 1;
+    break;
+    case 3:
+      digitalWrite(pinLatch, LOW);              
+      shiftOut(dataPin, clockPin, MSBFIRST, 8);
+      digitalWrite(pinLatch, HIGH);
+      numAnterior = 3;
+      activacionJuego = 1;
+    break;
+    case 4:
+      digitalWrite(pinLatch, LOW);               
+      shiftOut(dataPin, clockPin, MSBFIRST, 16); 
+      digitalWrite(pinLatch, HIGH);
+      numAnterior = 4;
+      activacionJuego = 1;
+    break;
+  }
 }
-void cuentaRegresiva(){
+void cuentaRegresiva()
+{
   /* Esto funciona de forma interrumpida por el Timer1 cada 1seg
    *
-   * regresion sera la cuenta propiamente dicho 
+   * regresion sera la cuenta propiamente dicho
    * cuando llegue a 0 se cambiara flagRegresion y ya no se volvera a esta funcion (se utiliza <=0 porque sino empieza a mostrar numeros negativos)
   */
   regresion = 5 - (aux++);
-  
-   if(regresion <= 0){
+
+  if (regresion <= 0)
+  {
     flagRegresion = 2;
   }
 }
 void finDelJuego(){
-
-  lcd.clear();
-  lcd.setCursor(0,0);
+/*Es el mensaje que se mostrara al finalizar el juego
+  
+  Aca tambien se pueden agregar para mostrar la cantidad de veces que se toco cada dedo y la cuenta general
+*/
+  lcd.setCursor(0, 0);
   lcd.print("  Felicidades!  ");
-  lcd.setCursor(0,1);
+  lcd.setCursor(0, 1);
   lcd.print(" Fin del juego! ");
-  delay(2000); //hay que sacar estos delay
+  delay(8000);
 }
