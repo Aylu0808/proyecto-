@@ -4,6 +4,10 @@
 #include <Servo.h>
 
 #define infra3 2
+#define infra2 1
+#define infra1 0
+#define infra4 3
+#define infra5 5
 
 #define pinLatch 8  // es la patita SH_CP
 #define clockPin 13 // es la patita DS
@@ -63,10 +67,10 @@ void setup()
   pinMode(inicio, INPUT);
 
   pinMode(infra3, INPUT);
- /* pinMode(infra2, INPUT);
+  pinMode(infra2, INPUT);
   pinMode(infra3, INPUT);
   pinMode(infra4, INPUT);
-  pinMode(infra5, INPUT);*/
+  pinMode(infra5, INPUT);
 
   pinMode(pinLatch, OUTPUT);
   pinMode(clockPin, OUTPUT);
@@ -191,7 +195,7 @@ void loop(){
         {
           juego();
         }
-        if (digitalRead(infra3) == HIGH)
+        if (digitalRead(infra3) == HIGH || digitalRead(infra5) == HIGH || digitalRead(infra4) == HIGH || digitalRead(infra2) == HIGH || digitalRead(infra1) == HIGH)
         {
           delay(500); // retencion del pulsador
           contadorViajes++;
