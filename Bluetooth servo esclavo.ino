@@ -18,16 +18,16 @@ void derecha();
 
 void setup() {
   
-  miservo_3.attach(9, 750, 1800); // EL 2 ES EL PIN DONDE ESTA CONECTADO EL 750 ES EL 0 Y EL 1800 POR LOS 180°
+  miservo_3.attach(9, 1000, 2000); // EL 2 ES EL PIN DONDE ESTA CONECTADO EL 750 ES EL 0 Y EL 1800 POR LOS 180°
   miservo_3.write(grados3);//b 
 
-  miservo_2.attach(5, 750, 1800); // EL 2 ES EL PIN DONDE ESTA CONECTADO EL 750 ES EL 0 Y EL 1800 POR LOS 180°
+  miservo_2.attach(5, 1000, 2000); // EL 2 ES EL PIN DONDE ESTA CONECTADO EL 750 ES EL 0 Y EL 1800 POR LOS 180°
   miservo_2.write(grados2);
 
-  miservo_1.attach(4 , 750, 2700); // EL 2 ES EL PIN DONDE ESTA CONECTADO EL 750 ES EL 0 Y EL 1800 POR LOS 180°
+  miservo_1.attach(4 , 1000, 2000); // EL 2 ES EL PIN DONDE ESTA CONECTADO EL 750 ES EL 0 Y EL 1800 POR LOS 180°
   miservo_1.write(grados1);//b 
 
-  BTSerial.begin(11500);
+  BTSerial.begin(9600);
 }
 
 void loop() {
@@ -35,13 +35,14 @@ void loop() {
   if(BTSerial.available()){
 
     state = BTSerial.read();
-    if(state == '1'){
+    
+    if(state == "1"){
       izquierda();
     }
-    if (state == '2'){
+    if (state == "2"){
           derecha();
         }
-    if(state == '3'){
+    if(state == "3"){
 
     grados2++;
     grados3 = 0;
@@ -54,20 +55,26 @@ void loop() {
     miservo_3.write(grados3);
     delay(10);
   }
-  if(state == '4'){
+  if(state == "4"){
 
     grados2--;
-    grados3++;
-    if(grados2 >= 0 and grados3 >= 60){
+    if(grados2 >= 0){
 
       grados2 = 0;
-      grados3 = 60;
     }
     miservo_2.write(grados2);
     delay(10);
+  }
+  if(state == "5"){
+    
+    grados3++;
+    
+    if(grados3 <= 30){
+      
+      grados3 = 30;
+    }
     miservo_3.write(grados3);
     delay(10);
-  }
   }
 }
 void derecha(){
