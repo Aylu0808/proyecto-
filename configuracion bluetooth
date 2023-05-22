@@ -1,22 +1,33 @@
 #include <SoftwareSerial.h>
-
-SoftwareSerial BT1(10, 11); // RX | TX
-void setup()
-  { 
-    pinMode(8, OUTPUT);        // Al poner en HIGH forzaremos el modo AT
-    pinMode(5, OUTPUT);        // cuando se alimente de aqui
-    digitalWrite(5, HIGH);
-    delay (500) ;              // Espera antes de encender el modulo
-    Serial.begin(9600);
-    Serial.println("Levantando el modulo HC-06");
-    digitalWrite (8, HIGH);    //Enciende el modulo
-    Serial.println("Esperando comandos AT:");
-    BT1.begin(38400); 
-  }
  
+#define RxD 11
+#define TxD 10
+#define KEY 9
+ 
+SoftwareSerial BTSerial(RxD, TxD);
+ 
+void setup()
+{
+pinMode(KEY, OUTPUT);
+digitalWrite(KEY, HIGH);   // Como se mencionó en configuración colocar a KEY en estado alto.
+  
+delay(500);
+  
+BTSerial.flush();
+delay(500);
+BTSerial.begin(38400); // comunicación directa al Modulo.
+Serial.begin(9600);        // comunicación directa al Monitor.
+Serial.println("Enter AT commands:");
+  
+BTSerial.print("AT\r\n");
+delay(100);
+  
+}
+  
 void loop()
-  {  if (BT1.available())
-           Serial.write(BT1.read());
-     if (Serial.available())
-        BT1.write(Serial.read());
-  }
+{
+if (BTSerial.available())
+Serial.write(BTSerial.read());
+  
+if (Serial.available())
+BTSerial.write(Se
