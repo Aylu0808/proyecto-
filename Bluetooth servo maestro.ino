@@ -7,6 +7,7 @@ int pulsador1 = A0;
 int pulsador2 = A1;
 int pulsador3 = A2;
 int pulsador4 = A3;
+int pulsador5 = A4;
 
 volatile int state = 0;
 
@@ -24,16 +25,17 @@ void setup() {
   pinMode(pulsador2, INPUT);
   pinMode(pulsador3, INPUT);
   pinMode(pulsador4, INPUT);
+  pinMode(pulsador45, INPUT);
 
-  BTSerial.begin(11500);
+  BTSerial.begin(9600);
 
-  miservo_3.attach(9, 750, 1800); // EL 2 ES EL PIN DONDE ESTA CONECTADO EL 750 ES EL 0 Y EL 1800 POR LOS 180°
+  miservo_3.attach(9, 1000, 2000); // EL 2 ES EL PIN DONDE ESTA CONECTADO EL 750 ES EL 0 Y EL 1800 POR LOS 180°
   miservo_3.write(grados3);//b 
 
-  miservo_2.attach(5, 750, 1800); // EL 2 ES EL PIN DONDE ESTA CONECTADO EL 750 ES EL 0 Y EL 1800 POR LOS 180°
+  miservo_2.attach(5, 1000, 2000); // EL 2 ES EL PIN DONDE ESTA CONECTADO EL 750 ES EL 0 Y EL 1800 POR LOS 180°
   miservo_2.write(grados2);
 
-  miservo_1.attach(4, 750, 2700); // EL 2 ES EL PIN DONDE ESTA CONECTADO EL 750 ES EL 0 Y EL 1800 POR LOS 180°
+  miservo_1.attach(4, 1000, 2000); // EL 2 ES EL PIN DONDE ESTA CONECTADO EL 750 ES EL 0 Y EL 1800 POR LOS 180°
   miservo_1.write(grados1);//b 
 }
 
@@ -57,6 +59,11 @@ void loop() {
     if(digitalRead(pulsador4) == HIGH){
 
     BTSerial.write("4");
+    delay(50);
+  }
+   if(digitalRead(pulsador5) == HIGH){
+
+    BTSerial.write("5");
     delay(50);
   }
   
