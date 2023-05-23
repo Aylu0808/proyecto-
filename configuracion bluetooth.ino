@@ -30,4 +30,5 @@ if (BTSerial.available())
 Serial.write(BTSerial.read());
   
 if (Serial.available())
-BTSerial.write(Se
+BTSerial.write(Serial.read());
+}
